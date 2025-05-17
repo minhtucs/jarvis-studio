@@ -22,5 +22,6 @@ CREATE TABLE message (
     content TEXT NOT NULL,
     role VARCHAR(50) NOT NULL,
     conversation_id uuid NOT NULL,
+    user_id INTEGER NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
