@@ -1,18 +1,17 @@
 import ConversationItem from "./conversation-item"
-import { Conversation } from "../../model/conversation"
 import { ConversationsContext, ConversationsDispatchContext } from "@/app/context/AppContext";
+import { ConversationService } from "@/app/services/conversation-services";
 import { useContext } from "react";
-import { useAddConversation } from "@/app/hooks/hooks";
 
 export default function ConversationListPanel() {
 
   const conversationsState = useContext(ConversationsContext);
   const conversationsDispatch = useContext(ConversationsDispatchContext);
 
-  const addConversation = useAddConversation();
+  const conversationService = new ConversationService();
 
   function handleAddConversation() {
-    const conversationAdded = addConversation({ title: "New conversation" });
+    const conversationAdded = conversationService.addConversation();
     conversationsDispatch({type: 'ADD_CONVERSATION', conversation: conversationAdded});
   }
 

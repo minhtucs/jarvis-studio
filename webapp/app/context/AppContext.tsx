@@ -2,8 +2,8 @@
 
 import { Conversation } from "../model/conversation";
 import React, { createContext, useReducer } from "react";
-import { listConversations } from "../services/conversation-services";
 import { Message } from "../model/message";
+import { ConversationService } from "../services/conversation-services";
 
 type ConversationsState = {
   conversationList: Conversation[];
@@ -16,7 +16,9 @@ type ConversationAction =
   | { type: "NEW_USER_MESSAGE"; message: Message }
   | { type: "LLM_RESPONSE_MESSAGE"; message: Message }
 
-const initialConversations = listConversations() ?? []; // async ???
+const conversationService = new ConversationService();
+
+const initialConversations = conversationService.listConversations() ?? []; // async ???
 
 const initialConversationsState: ConversationsState = {
   conversationList: initialConversations,

@@ -1,20 +1,22 @@
 'use client';
 
 import { Message } from "@/app/model/message";
-import { generateNewMessageId } from "@/app/services/conversation-services";
 import { useContext, useState } from "react"
 import { ConversationsDispatchContext } from "@/app/context/AppContext";
-import { useChatWithLLM } from "@/app/hooks/hooks";
 import { Role } from "@/app/model/role";
+import { MessageService } from "@/app/services/message-service";
+import { ConversationService } from "@/app/services/conversation-services";
 
 export default function MessageInput() {
 
   const [messageContent, setMessageContent] = useState<string>("");
   const conversationsDispatch = useContext(ConversationsDispatchContext);
-  const chatWithLLM = useChatWithLLM();
+
+  const conversationService = new ConversationService();
+  const messageService = new MessageService();
 
   async function handleSendMessage() {
-    const messageId = generateNewMessageId();
+    const messageId = conversationService.generateMessageId();
     const message: Message = { id: messageId, content: messageContent, role: Role.User, createdAt: new Date() };
     
     conversationsDispatch({type: 'NEW_USER_MESSAGE', message: message});
@@ -22,7 +24,7 @@ export default function MessageInput() {
     // TODO disable message input box of current conversation
 
     try {
-      const respMessage: Message = await chatWithLLM(message.content);
+      const respMessage: Message = await messageService.sendMessage(message.content);
       console.log('llm response', respMessage);
       // TODO handle request error
       conversationsDispatch({type: 'LLM_RESPONSE_MESSAGE', message: respMessage});
