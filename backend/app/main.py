@@ -1,6 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-from app.routers import healthcheck, chats, conversations, messages
+from app.routers import healthcheck, conversations, messages
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -14,7 +14,6 @@ app.add_middleware(
 )
 
 app.include_router(healthcheck.router)
-app.include_router(chats.router)
 app.include_router(conversations.router)
 app.include_router(messages.router)
 

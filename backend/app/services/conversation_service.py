@@ -5,6 +5,15 @@ from app.db import SessionLocal
 MAX_PAGE_SIZE = 100
 
 class ConversationService:
+
+  def create_conversation(self, conversation: Conversation, user_id: int) -> Conversation:
+    conversation.user_id = user_id
+    
+    with SessionLocal() as session:
+      result = session.add(conversation)
+      session.commit()
+      session.refresh(conversation)
+      return conversation
   
   def list_conversations(self, user_id: int) -> list[Conversation]:
     sql = text("""
