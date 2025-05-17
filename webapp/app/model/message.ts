@@ -1,8 +1,10 @@
+import { Role } from "./role";
+
 export interface Message {
   
   id: string;
   content: string;
-  role: 'User' | 'Assistant';
+  role: Role;
   createdAt: Date;
   // type: TEXT, IMAGE
 

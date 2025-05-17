@@ -5,6 +5,7 @@ import { generateNewMessageId } from "@/app/services/conversation-services";
 import { useContext, useState } from "react"
 import { ConversationsDispatchContext } from "@/app/context/AppContext";
 import { useChatWithLLM } from "@/app/hooks/hooks";
+import { Role } from "@/app/model/role";
 
 export default function MessageInput() {
 
@@ -14,7 +15,7 @@ export default function MessageInput() {
 
   async function handleSendMessage() {
     const messageId = generateNewMessageId();
-    const message: Message = { id: messageId, content: messageContent, role: 'User', createdAt: new Date() };
+    const message: Message = { id: messageId, content: messageContent, role: Role.User, createdAt: new Date() };
     
     conversationsDispatch({type: 'NEW_USER_MESSAGE', message: message});
     setMessageContent(""); // clean input box
@@ -22,6 +23,7 @@ export default function MessageInput() {
 
     try {
       const respMessage: Message = await chatWithLLM(message.content);
+      console.log('llm response', respMessage);
       // TODO handle request error
       conversationsDispatch({type: 'LLM_RESPONSE_MESSAGE', message: respMessage});
       // TODO enable message input box
@@ -31,7 +33,7 @@ export default function MessageInput() {
   }
 
   return (
-    <div className="border-1 border-stone-400 rounded-xl focus:border-2 focus:border-emerald-600">
+    <div className="border-1 border-stone-400 rounded-3xl focus:border-2 focus:border-emerald-600">
       <textarea 
         className="w-[calc(100%-2rem)] m-4 border-transparent focus:border-transparent focus:outline-none" 
         placeholder="Enter message..."

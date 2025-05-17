@@ -1,5 +1,6 @@
 import { Conversation } from "../model/conversation";
 import { Message } from "../model/message";
+import { Role } from "../model/role";
 import { addConversation } from "../services/conversation-services";
 import { chatWithLLM } from "../services/message-service";
 
@@ -24,7 +25,7 @@ export function useChatWithLLM() {
     const respMessage: Message = {
       id: crypto.randomUUID(),
       content: respContent,
-      creator: 'Assistant',
+      role: Role.Assistant,
       createdAt: new Date()
     }
 
