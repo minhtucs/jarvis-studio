@@ -6,9 +6,9 @@ from typing import Optional
 class ConversationSchema(BaseModel):
     id: UUID
     title: str
-    user_id: Optional[int] = None
-    created_at: Optional[datetime] = None
-    last_modified_at: Optional[datetime] = None
+    userId: Optional[int] = None
+    createdAt: Optional[datetime] = None
+    lastModifiedAt: Optional[datetime] = None
 
     class Config:
         from_attributes = True

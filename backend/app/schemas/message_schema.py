@@ -1,14 +1,15 @@
 from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
+from typing import Optional
 
 class MessageSchema(BaseModel):
-    id: int
+    id: Optional[int] = None
     content: str
     role: str
-    conversation_id: UUID
-    user_id: int
-    created_at: datetime
+    conversationId: UUID
+    userId: Optional[int] = None
+    createdAt: Optional[datetime] = None
 
     class Config:
         from_attributes = True

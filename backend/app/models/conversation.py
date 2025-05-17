@@ -7,6 +7,6 @@ class Conversation(Base):
 
     id = Column(UUID, primary_key=True, index=True)
     title = Column(String)
-    user_id = Column(Integer, index=True)
-    created_at = Column(DateTime, server_default=func.now())
-    last_modified_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    userId = Column(Integer, name='user_id', index=True)
+    createdAt = Column(DateTime, name='created_at', server_default=func.now())
+    lastModifiedAt = Column(DateTime, name='last_modified_at', server_default=func.now(), onupdate=func.now())
