@@ -10,7 +10,7 @@ model = 'gpt-4o-mini-2024-07-18'
 class MessageRequest(BaseModel):
   content: str
 
-class ChatService:
+class LLMService:
   def send_message(self, request: MessageRequest):
     response = llm.chat.completions.create(
       model=model,

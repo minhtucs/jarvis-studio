@@ -1,21 +1,22 @@
-from psycopg_pool import ConnectionPool
 from dotenv import load_dotenv
 import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-db_config = (
-  f"host={os.environ['POSTGRES_HOST']} "
-  f"port={os.environ['POSTGRES_PORT']} "
-  f"user={os.environ['POSTGRES_USER']} "
-  f"password={os.environ['POSTGRES_PASSWORD']} "
-  f"dbname={os.environ['POSTGRES_DB']}"
-)
+HOST = os.environ['POSTGRES_HOST']
+PORT = os.environ['POSTGRES_PORT']
+USER = os.environ['POSTGRES_USER']
+PASSWORD = os.environ['POSTGRES_PASSWORD']
+DB_NAME = os.environ['POSTGRES_DB']
 
-MIN_CONN = int(os.environ['POSTGRES_MIN_CONN'])
-MAX_CONN = int(os.environ['POSTGRES_MAX_CONN'])
+POOL_SIZE = int(os.environ['POSTGRES_POOL_SIZE'])
+MAX_OVERFLOW = int(os.environ['POSTGRES_MAX_OVERFLOW'])
 
-pool = ConnectionPool(conninfo=db_config, min_size=MIN_CONN, max_size=MAX_CONN)
+DB_URL = f'postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}'
+engine = create_engine(DB_URL, pool_size=POOL_SIZE, max_overflow=MAX_OVERFLOW, pool_pre_ping=True)
 
-def get_pool() -> ConnectionPool:
-  return pool
+Base = declarative_base()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) # call session.commit() to commit the transaction

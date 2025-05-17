@@ -1,30 +1,32 @@
-from app.db import get_pool
+from sqlalchemy import text
 from app.models.conversation import Conversation
+from app.db import SessionLocal
 
 MAX_PAGE_SIZE = 100
 
 class ConversationService:
   
-  def list_conversations(self, userId: int) -> list[Conversation]:
-    conversations: list[Conversation] = []
-    with get_pool().connection() as conn:
-      with conn.cursor() as cur:
-        cur.execute("""
-                    SELECT id, title, user_id, created_at, last_modified_at 
-                    FROM conversation
-                    WHERE user_id = %s
-                    ORDER BY last_modified_at DESC
-                    LIMIT %s
-                    """, (userId, MAX_PAGE_SIZE))
-        rows = cur.fetchall()
-        for row in rows:
-          conversations.append(self.row2conversation(row))
-    return conversations
-  
-  def row2conversation(self, row) -> Conversation:
-    return Conversation(
-      id = row[0], 
-      title=row[1], 
-      user_id=row[2], 
-      created_at=row[3], 
-      last_modified_at=row[4])
+  def list_conversations(self, user_id: int) -> list[Conversation]:
+    sql = text("""
+      SELECT id, title, user_id, created_at, last_modified_at 
+      FROM conversation
+      WHERE user_id = :userId
+      ORDER BY last_modified_at DESC
+      LIMIT :pageSize
+    """)
+
+    with SessionLocal() as session:
+      result = session.execute(sql, {'userId': user_id, 'pageSize': MAX_PAGE_SIZE})
+      rows = result.fetchall()
+
+      print(f"conversations_count {result.rowcount}")
+      print(f"rows {rows}")
+      
+      # [Conversation(**row) for row in rows]
+      return [Conversation(
+        id=row.id,
+        title=row.title,
+        user_id=row.user_id,
+        created_at=row.created_at,
+        last_modified_at=row.last_modified_at
+      ) for row in rows]

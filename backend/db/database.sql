@@ -10,9 +10,9 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE conversation (
-    id SERIAL PRIMARY KEY,
+    id uuid PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     last_modified_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
@@ -21,6 +21,6 @@ CREATE TABLE message (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
     role VARCHAR(50) NOT NULL,
-    conversation_id INTEGER NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
+    conversation_id uuid NOT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );

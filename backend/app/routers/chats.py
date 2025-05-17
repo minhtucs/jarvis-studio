@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from app.services.chat_service import ChatService, MessageRequest
+from app.services.llm_service import LLMService, MessageRequest
 
 router = APIRouter()
-chatservice = ChatService()
+llmService = LLMService()
 
 @router.post('/api/chat')
 def chat(request: MessageRequest):
   # handle error, logging
-  return chatservice.send_message(request)
+  return llmService.send_message(request)
