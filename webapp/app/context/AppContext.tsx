@@ -4,39 +4,58 @@ import { Conversation } from "../model/conversation";
 import React, { createContext, useReducer } from "react";
 import { Message } from "../model/message";
 import { ConversationService } from "../services/conversation-services";
+import { MessageService } from "../services/message-service";
 
 type ConversationsState = {
   conversationList: Conversation[];
-  conversationActive: Conversation | null;
+  conversationActive: Conversation;
 }
 
 type ConversationAction = 
-  | { type: "SET_CONVERSATION_ACTIVE"; conversation: Conversation }
-  | { type: "ADD_CONVERSATION"; conversation: Conversation }
+  | { type: "ACTIVE_CONVERSATION_CHANGED"; conversation: Conversation }
+  | { type: "NEW_CONVERSATION"; conversation: Conversation }
+  | { type: "CONVERSATION_CHANGED"; conversation: Conversation }
   | { type: "NEW_USER_MESSAGE"; message: Message }
   | { type: "LLM_RESPONSE_MESSAGE"; message: Message }
 
 const conversationService = new ConversationService();
+const messageService = new MessageService();
 
-const initialConversations = conversationService.listConversations() ?? []; // async ???
+const initialConversations = await conversationService.getConversations() || [];
+
+let conversationActive = null;
+if (initialConversations.length > 0) {
+  conversationActive = initialConversations[0];
+  conversationActive.messages = await messageService.getLatestMessages(conversationActive.id);
+} else {
+  conversationActive = conversationService.newDraftConversation();
+  initialConversations.push(conversationActive);
+}
 
 const initialConversationsState: ConversationsState = {
   conversationList: initialConversations,
-  conversationActive: initialConversations[0] ?? null
+  conversationActive: conversationActive
 }
 
 function conversationsReducer(state: ConversationsState, action: ConversationAction) {
   switch (action.type) {
-    case 'SET_CONVERSATION_ACTIVE':
+    case 'ACTIVE_CONVERSATION_CHANGED':
       return {
         ...state,
         conversationActive: action.conversation
       };
-    case 'ADD_CONVERSATION':
+    case 'NEW_CONVERSATION':
       return {
         ...state,
         conversationList: [action.conversation, ...state.conversationList],
         conversationActive: action.conversation
+      };
+    case 'CONVERSATION_CHANGED':
+      return {
+        ...state,
+        conversationList: state.conversationList.map(conv => 
+          conv.id === action.conversation.id ? action.conversation : conv
+        )
       };
     case 'NEW_USER_MESSAGE': 
     case 'LLM_RESPONSE_MESSAGE':

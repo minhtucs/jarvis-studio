@@ -2,9 +2,10 @@ import { Message } from "./message";
 
 export interface Conversation {
   
-  id?: string | null;
-  title?: string;
-  messages?: Message[]; // lazy loading, paging
+  id: string;
+  title: string;
+  messages?: Message[]; // lazy loading
+  createdAt?: Date;
   lastModifiedAt?: Date;
   
-}
+} 

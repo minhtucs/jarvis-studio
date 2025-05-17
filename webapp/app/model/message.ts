@@ -2,10 +2,12 @@ import { Role } from "./role";
 
 export interface Message {
   
-  id: string;
+  id?: number;
   content: string;
   role: Role;
-  createdAt: Date;
-  // type: TEXT, IMAGE
+  conversationId: string;
+  userId?: number;
+  createdAt?: Date;
+  // status: string; // PENDING, SUCCESS, ERROR
 
 }

@@ -1,25 +1,61 @@
+import { create } from "domain";
 import { Conversation } from "../model/conversation"
-import { Role } from "../model/role";
 
-const conversations: Conversation[] = [
-  { id: '1', title: 'How to build AI Agent', messages: [{ id: '1', content: 'This is a message from Assistant', role: Role.Assistant, createdAt: new Date() }, { id: '2', content: 'This is a message from User', role: Role.User, createdAt: new Date() }, { id: '3', content: 'This is a message from Assistant', role: Role.Assistant, createdAt: new Date() }, { id: '5', content: 'This is a message from User', role: Role.User, createdAt: new Date() }, { id: '6', content: 'This is a message from Assistant', role: Role.Assistant, createdAt: new Date() }], lastModifiedAt: new Date() },
-  { id: '2', title: 'RAG Application', messages: [{ id: '1', content: 'This is RAG Application Assistatn', role: Role.Assistant, createdAt: new Date() }, { id: '2', content: 'This is a message from User', role: Role.User, createdAt: new Date() }], lastModifiedAt: new Date() },
-  { id: '3', title: 'Fullstack Engineering', messages: [{ id: '1', content: 'This is Fullstack Engineering Assistant', role: Role.Assistant, createdAt: new Date() }, { id: '2', content: 'This is a message from User', role: Role.User, createdAt: new Date() }], lastModifiedAt: new Date() }
-]
+const API_HOST = 'http://127.0.0.1:8000'
 
 export class ConversationService {
 
-  listConversations(): Conversation[] {
-    return conversations;
+  async getConversations(): Promise<Conversation[]> {
+    try {
+      const resp = await fetch(`${API_HOST}/api/conversations`);
+      if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`)
+      }
+
+      const data = await resp.json();
+      const conversations: Conversation[] = data.map((conv: any) => ({
+        id: conv.id,
+        title: conv.title,
+        messages: [],
+        createdAt: new Date(conv.createdAt),
+        lastModifiedAt: new Date(conv.lastModifiedAt)
+      }));
+      return conversations;
+    } catch (error) {
+      console.error('Error listConversations', error);
+      throw error;
+    }
   }
 
-  addConversation(): Conversation {
+  async saveConversation(conversation: Conversation): Promise<Conversation> {
+    try {
+      const resp = await fetch(`${API_HOST}/api/conversations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(conversation)
+      });
+      if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`)
+      }
+
+      const data = await resp.json();
+      return data;
+    } catch (error) {
+      console.error('Error saveConversation', error);
+      throw error;
+    }
+  }
+
+  newDraftConversation(): Conversation {
     const conversation: Conversation = {
       id: this.generateConversationId(),
       title: 'New Conversation',
       messages: [],
+      createdAt: new Date(),
       lastModifiedAt: new Date()
-    }
+    };
     return conversation
   }
 
@@ -27,8 +63,10 @@ export class ConversationService {
     return crypto.randomUUID();
   }
 
-  generateMessageId(): string {
-    return crypto.randomUUID();
+  generateTitleFromMessage(messageContent: string): string {
+    const maxLength = 25;
+    const title = messageContent.length > maxLength ? messageContent.substring(0, maxLength) + '...' : messageContent;
+    return title;
   }
 
 }

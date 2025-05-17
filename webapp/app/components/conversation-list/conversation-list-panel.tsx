@@ -11,8 +11,8 @@ export default function ConversationListPanel() {
   const conversationService = new ConversationService();
 
   function handleAddConversation() {
-    const conversationAdded = conversationService.addConversation();
-    conversationsDispatch({type: 'ADD_CONVERSATION', conversation: conversationAdded});
+    const conversationAdded = conversationService.newDraftConversation();
+    conversationsDispatch({type: 'NEW_CONVERSATION', conversation: conversationAdded});
   }
 
   return (

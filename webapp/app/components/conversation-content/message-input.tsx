@@ -2,7 +2,7 @@
 
 import { Message } from "@/app/model/message";
 import { useContext, useState } from "react"
-import { ConversationsDispatchContext } from "@/app/context/AppContext";
+import { ConversationsContext, ConversationsDispatchContext } from "@/app/context/AppContext";
 import { Role } from "@/app/model/role";
 import { MessageService } from "@/app/services/message-service";
 import { ConversationService } from "@/app/services/conversation-services";
@@ -10,24 +10,36 @@ import { ConversationService } from "@/app/services/conversation-services";
 export default function MessageInput() {
 
   const [messageContent, setMessageContent] = useState<string>("");
+
+  const conversationsState = useContext(ConversationsContext);
   const conversationsDispatch = useContext(ConversationsDispatchContext);
 
   const conversationService = new ConversationService();
   const messageService = new MessageService();
 
   async function handleSendMessage() {
-    const messageId = conversationService.generateMessageId();
-    const message: Message = { id: messageId, content: messageContent, role: Role.User, createdAt: new Date() };
-    
-    conversationsDispatch({type: 'NEW_USER_MESSAGE', message: message});
-    setMessageContent(""); // clean input box
+    let conversationActive = conversationsState.conversationActive;
+    // save new conversation
+    if (conversationActive.messages?.length === 0) {
+      conversationActive.title = conversationService.generateTitleFromMessage(messageContent);
+      conversationActive = await conversationService.saveConversation(conversationActive);
+      conversationsDispatch({type: 'ACTIVE_CONVERSATION_CHANGED', conversation: conversationActive}); // needed ??
+      conversationsDispatch({type: 'CONVERSATION_CHANGED', conversation: conversationActive});
+    }
+
+    // save user message
+    let userMessage: Message = { content: messageContent, role: Role.User, conversationId: conversationActive.id };
+    userMessage = await messageService.saveUserMessage(userMessage);
+    conversationsDispatch({type: 'NEW_USER_MESSAGE', message: userMessage});
+    setMessageContent("");
     // TODO disable message input box of current conversation
 
+    // chat with LLM
     try {
-      const respMessage: Message = await messageService.sendMessage(message.content);
-      console.log('llm response', respMessage);
+      const assistantMessage: Message = await messageService.chatLLM(userMessage);
+      console.log('llm response', assistantMessage);
       // TODO handle request error
-      conversationsDispatch({type: 'LLM_RESPONSE_MESSAGE', message: respMessage});
+      conversationsDispatch({type: 'LLM_RESPONSE_MESSAGE', message: assistantMessage});
       // TODO enable message input box
     } catch (error) {
       console.log(error);
